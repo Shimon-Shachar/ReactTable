@@ -34,7 +34,7 @@ const App = () => {
     const res = await getUsers(page)
     const data = await res.list;
     const currentPage = await res.pageCurrent;
-    
+    const pageCount = await res.pageCount;
     if (data.length === 0) {
       console.log("data.length", data.length)
       setEmpty(true)
@@ -42,6 +42,8 @@ const App = () => {
     
     dispatch(usersActions.setDbUsers(res.list));
     dispatch(usersActions.setCurrentPage(currentPage));
+    dispatch(usersActions.setPageCount(pageCount));
+
     const res2 = await getUserAccounInfo();
     //for Account Info
     dispatch(usersActions.dbAccountInfo(res2.list))
@@ -70,7 +72,7 @@ const App = () => {
       
       setRefresh((prev) => !prev);
     
-    }, 1000 * 60);
+    }, 1000 * 180);
     return () => {
       
       clearInterval(interval);

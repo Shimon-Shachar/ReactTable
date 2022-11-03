@@ -5,6 +5,7 @@ const initialState = {
   updateUser: {},
   dbAccountInfo: [],
   currentPage : 1,
+  pageCount: 4,
   users: [
     {
       firstName: "",
@@ -36,6 +37,9 @@ const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
+    setPageCount(state, action) {
+      state.pageCount = action.payload;
+    },
     setCurrentPage(state, action) {
       state.currentPage = action.payload
     },

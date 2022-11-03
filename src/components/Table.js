@@ -11,8 +11,14 @@ import ErrorModal from "./UI/ErrorModal";
 
 
 const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,error,empty,  onClose, isAddUser, addAndUpdate}) => {
-  
+  const [firstDisabled, setFirstDisabled] = useState(true);
+  const [prevDisabled, setPrevDisabled] = useState(true);
+  const [nextDisabled, setNextDisabled] = useState(false);
+  const [lastDisabled, setLastDisabled] = useState(false);
+
   const currentDBPage = useSelector((state) => state.users.currentPage);
+  const dbPageCount = useSelector((state) => state.users.pageCount);
+
   const data1 = useSelector((state) => state.users.users);
   const data = useMemo(()=> data1, [data1]);
   useEffect(()=> {
@@ -21,10 +27,6 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
   
   
   const [records, setRecords] = useState(data);
-  
-  
-  //const [dataLength ,setDataLength] = useState(0);
-  console.log({ records });
   
   
   const getRowId = useCallback((row) => {
@@ -61,7 +63,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
     nextPage,
     previousPage,
     setPageSize,
-    state: { loading, pageIndex, pageSize=5, expanded },
+    state: { loading, pageIndex, pageSize, expanded },
   } = useTable(
     {
       data: records,
@@ -74,7 +76,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
     useSortBy,
     usePagination
   );
-  console.log({ rows });
+  
   const moveRow = (dragIndex, hoverIndex) => {
     const dragRecord = records[dragIndex];
     setRecords(
@@ -86,7 +88,72 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
       })
     );
   };
+  const first = () => {
+    getPage(1);
+    gotoPage(1);
+    console.log("first", pageIndex);
+  };
   
+  const prev = () => {
+    console.clear();
+    console.log("next ,pageIndex", pageIndex);
+    console.log("next, pageCount" , pageCount);
+    console.log("curentDBPage", currentDBPage);
+    console.log("dbPageCOunt", dbPageCount);
+    
+    const prevPage = pageIndex - 1;
+    if (prevPage === 0 && currentDBPage === 1) {
+      console.log("prevPage === 0 && currentDBPage === 1");
+      setFirstDisabled(true);
+      setPrevDisabled(true);
+      gotoPage(prevPage);
+    } else {
+      if (!canPreviousPage) {
+        console.log("!canPreviousPage");
+        getPage(currentDBPage - 1)
+        gotoPage(0);
+      } else {  
+        console.log("prevPage !== 0");
+        gotoPage(prevPage);
+        setLastDisabled(false);
+        setNextDisabled(false);
+      }
+    }
+  }
+  const next = () => {
+    
+    const nextPage = pageIndex + 1;
+    setFirstDisabled(false);
+    setPrevDisabled(false);
+
+    
+    if (nextPage +1 === pageCount && currentDBPage === dbPageCount) {
+      gotoPage(nextPage);
+      setNextDisabled(true);
+      setLastDisabled(true);
+    } else {
+      if (pageIndex +  1=== pageCount) {
+        getPage(currentDBPage + 1);
+        gotoPage(0);
+      } else {
+        gotoPage(nextPage);
+      }
+    }
+  }
+  const last = () => {
+    if (currentDBPage === dbPageCount) {
+      gotoPage(pageCount - 1);
+    } else {
+      getPage(dbPageCount);
+      gotoPage(pageCount - 1);
+    }
+    console.log("last", pageCount);
+    getPage(dbPageCount);
+    
+    setLastDisabled(true);
+    
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
      {(error || empty) && <ErrorModal error={error} onClose={onClose} empty={empty}/>}
@@ -136,16 +203,16 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
         </tbody>
       </table>
       <div className="pagination">
-        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        <button onClick={() => {first(); setLastDisabled(false);setNextDisabled(false) }} disabled={firstDisabled}>
           {"<<"}
         </button>{" "}
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+        <button onClick={() => prev() } disabled={prevDisabled} >
           {"<"}
         </button>{" "}
-        <button onClick={() =>{ if (!canNextPage){getPage(currentDBPage+1)} else { nextPage()}}} >
+        <button onClick={() => next()} disabled={nextDisabled}>
           {">"}
         </button>{" "}
-        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+        <button onClick={() => {last(); setPrevDisabled(false); setFirstDisabled(false)}} disabled={lastDisabled} >
           {">>"}
         </button>{" "}
         <span>
@@ -172,7 +239,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
           <input
             min={1}
             type="number"
-            defaultValue={currentDBPage+1}
+            defaultValue={currentDBPage + 1}
             onChange={(e) => {
               const getpageNum = e.target.value ? Number(e.target.value) - 1 : 0;
               if (getpageNum < 1) { return}
