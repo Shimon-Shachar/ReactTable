@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+}
+
+html {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.form-control {
+  position: right;
+  margin-bottom: 1rem;
+  border: 1px solid white;
+  border-radius: 4px;
+  background-color: #b1efe7;
+  
+}
+
+.form-control input,
+.form-control label {
+  display: block;
+}
+
+.form-control label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.form-control input,
+.form-control select {
+  font: inherit;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 20rem;
+  max-width: 100%;
+}
+
+.form-control input:focus {
+  outline: none;
+  border-color: #ffffff;
+  background-color: #e0d4fd;
+}
+
+.control-group {
+
+  display: flex;
+  column-gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.control-group .form-control {
+  min-width: 15rem;
+  flex: 1;
+}
+
+button {
+  font: inherit;
+  background-color: #b1efe7;
+  color: rgb(0, 0, 0);
+  border: 1px solid #002427;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+span:hover,
+span:active {
+  background-color: #b1efe7;
+  border-color: #ffffff;
+}
+
+span:active {
+  background-color: #46b2a4;
+  border-color: #ffffff;
+}
+
+span:disabled,
+span:disabled:hover,
+span:disabled:active {
+	background-color: #ccc;
+	color: #292929;
+	border-color: #ccc;
+	cursor: not-allowed;
+}
+
+.form-actions {
+  text-align: left
+  ;
+}
+
+.addUserbtn, .changeUserbtn, .closebtn {
+  font: inherit;
+  background-color: #b1efe7;
+  color: rgb(0, 0, 0);
+  border: 1px solid #002427;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.savechkBox {
+  background-color: #b1efe7;
+  border: 1px solid #002427;
+  cursor: pointer;
+}
+
+.addUserbtn:hover,
+.changeUserbtn:hover,
+.closebtn:hover, 
+.savechkBox:hover
+{
+  border-color: #ef7732;
+}
+.invalid input {
+  border: 1px solid #b40e0e;
+  background-color: #fddddd;
+}
+
+.invalid input:focus {
+  border-color: #ff8800;
+  background-color: #fbe8d2;
+}
+
+.error-text {
+  color: #b40e0e
+}

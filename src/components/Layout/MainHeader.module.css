@@ -1,0 +1,41 @@
+.header {
+  margin: 0;
+
+  height: 5rem;
+  width: 1625px;
+  padding: 20px;
+  display: flex;
+  align-items: left;
+  justify-content: space-between;
+  background-color: #b6b6b6;
+}
+
+.header h3 {
+  color: white;
+}
+
+.header ul li {
+  color: white;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.refreshbutton:hover {
+  background-color: #b9f06cd6;
+  border-radius: 2px;
+  
+}
+.refreshbutton:active {
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+/* button:hover {
+  background-color: #6cf0ded6;
+}
+
+button:active {
+  border-color: #ffffff;
+} */
+

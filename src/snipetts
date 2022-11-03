@@ -1,0 +1,7 @@
+dispatch(uiActions.notify({
+status: 'pending',
+title: 'Sending ...',
+message: 'Sending cart data!'
+}));
+
+const showCart = useSelector(state => state.ui.cartIsVisible );
