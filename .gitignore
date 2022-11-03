@@ -1,6 +1,4 @@
-node_modules
-public
+.node_modules
 ./node_modules
-./public
 .eslintchache
-tfgfdgsdf
+node_modules

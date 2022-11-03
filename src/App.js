@@ -26,19 +26,24 @@ const App = () => {
     organizationCode: "",
     email: "",
   });
+  const currentDBPage = useSelector((state) => state.users.currentPage);
   const dispatch = useDispatch();
   
-  const fetchData = async ()=> {
+  const fetchData = async (page=currentDBPage)=> {
     try {
-    const res = await getUsers()
+    const res = await getUsers(page)
     const data = await res.list;
+    const currentPage = await res.pageCurrent;
+    
     if (data.length === 0) {
       console.log("data.length", data.length)
       setEmpty(true)
     }
-    dispatch(usersActions.setDbUsers(res.list));
-    const res2 = await getUserAccounInfo();
     
+    dispatch(usersActions.setDbUsers(res.list));
+    dispatch(usersActions.setCurrentPage(currentPage));
+    const res2 = await getUserAccounInfo();
+    //for Account Info
     dispatch(usersActions.dbAccountInfo(res2.list))
     console.log(res2)
     } catch (err)
@@ -46,27 +51,34 @@ const App = () => {
       setError(err)
     }  
   }  
+  
   useEffect(()=>{
     setLoading(true)
+    
     setTimeout(()=> {
-      fetchData();
-    setLoading(false)
+      
+      fetchData(currentDBPage);
+    
+      setLoading(false)
     }, 500)
     
-  },[])
+  },[refresh])
 
   
   useEffect(() => {
     const interval = setInterval(() => {
       
       setRefresh((prev) => !prev);
-    }, 1000 * 30000);
+    
+    }, 1000 * 60);
     return () => {
+      
       clearInterval(interval);
       setLoading(false)
       setEmpty(false)
+    
     };
-  }, [refresh]);
+  }, []);
  
   const columns = useMemo(
     () => [
@@ -176,7 +188,7 @@ const App = () => {
             Cell: (props) => {
               return (
                 <Fragment>
-                  <div class={classes.dropdown}>
+                  <div className={classes.dropdown}>
                     <span>
                       <FcExpand />
                     </span>
@@ -228,22 +240,7 @@ const App = () => {
   };
   const getPage = (pageNum) => {
     console.log("GET PAGE", pageNum);
-    const res = getUsers(pageNum)
-      .then((res) => {
-        if (res.list.length === 0) {
-          setEmpty(true)
-        }
-        dispatch(usersActions.setDbUsers(res.list));
-      })
-      .catch((err) => {
-        setError(err);
-        console.log(
-          "AJAX ERROR: ",
-          err.message,
-          err.name,
-          err.customErrorMessage
-        );
-      });
+      fetchData(pageNum);
   };
   const toggleForm = (formUser, _bool) => {
     if (_bool === "both"){
@@ -278,42 +275,8 @@ const App = () => {
   return (
     <Fragment>
       <Layout refresh={refreshFunc} loading={loading} empty={empty}></Layout>
-      <Table {...propsToTable} />;
+      <Table {...propsToTable} />
     </Fragment>
   );
 };
 export default App;
-
-
-// useEffect(() => {
-//   const res = getUsers()
-//     .then((res) => {
-//       dispatch(usersActions.setDbUsers(res.list));
-//       setLoading(false);
-//     })
-//     .catch((err) => {
-//       setError(prev=> prev ={...err});
-//       console.log(
-//         "AJAX ERROR: ",
-//         err.message,
-//         err.name,
-//         err.customErrorMessage
-//       );
-//     });
-//   const res2 = getUserAccounInfo().then((res) =>
-//     dispatch(usersActions.dbAccountInfo(res.list))
-//     );
-// }, [data, refresh]);
-
-// useEffect(() => {
-//   setLoading(true);
-// }, []);
-
-// useEffect(() => {
-//   const interval = setInterval(() => {
-//     setRefresh((prev) => !prev);
-//   }, 1000 * 30);
-//   return () => {
-//     clearInterval(interval);
-//   };
-// }, [refresh]);

@@ -47,6 +47,17 @@ button:hover {
 button:active {
   border-color: #ffffff;
 }
+
+button:disabled,
+button:disabled:hover,
+button:disabled:active {
+	background-color: #ccc;
+	color: #292929;
+	border-color: #ccc;
+	cursor: inital;
+}
+
+
 table th,
 tfoot td {
   padding-top: 12px;
@@ -63,7 +74,9 @@ tfoot td {
 .not-active {
   background-color: #d8d8d8;
 }
-
+.move {
+  cursor: move;
+}
 .special {
   background-color: #fcce51;
 }

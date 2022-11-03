@@ -12,12 +12,13 @@ import ErrorModal from "./UI/ErrorModal";
 
 const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,error,empty,  onClose, isAddUser, addAndUpdate}) => {
   
+  const currentDBPage = useSelector((state) => state.users.currentPage);
   const data1 = useSelector((state) => state.users.users);
   const data = useMemo(()=> data1, [data1]);
   useEffect(()=> {
     setRecords(data)
   }, [data])
-  const dispatch = useDispatch();
+  
   
   const [records, setRecords] = useState(data);
   
@@ -60,7 +61,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, expanded },
+    state: { loading, pageIndex, pageSize=5, expanded },
   } = useTable(
     {
       data: records,
@@ -85,7 +86,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
       })
     );
   };
-
+  
   return (
     <DndProvider backend={HTML5Backend}>
      {(error || empty) && <ErrorModal error={error} onClose={onClose} empty={empty}/>}
@@ -129,7 +130,6 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
                   {...row.getRowProps()}
                   open={open}
                   openRowId={openRowId}
-                
                 />
               )
           )}
@@ -142,43 +142,46 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
         <button onClick={() => previousPage()} disabled={!canPreviousPage}>
           {"<"}
         </button>{" "}
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
+        <button onClick={() =>{ if (!canNextPage){getPage(currentDBPage+1)} else { nextPage()}}} >
           {">"}
         </button>{" "}
         <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
           {">>"}
         </button>{" "}
         <span>
-          | Go  to page:{" "}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              getPage(page);
-              gotoPage(page);
-            }}
-            style={{ width: "100px" }}
-          />
-        </span>{" "}
-        <span>
-          Page{" "}
+          | Showing page{" "}
           <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
+            {pageIndex+1} of {pageOptions.length} 
+          </strong>{" | "}
         </span>
         <select
-          value={pageSize}
+          
+          defaultValue={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
           }}
         >
-          {[10, 20].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
+          {[5, 10, 20].map((_rows) => (
+            <option key={_rows} value={_rows}>
+              Show {_rows} rows
             </option>
           ))}
         </select>
+        <span>
+         Current page in DB: {currentDBPage} | Load DB page: {""}
+          <input
+            min={1}
+            type="number"
+            defaultValue={currentDBPage+1}
+            onChange={(e) => {
+              const getpageNum = e.target.value ? Number(e.target.value) - 1 : 0;
+              if (getpageNum < 1) { return}
+              getPage(getpageNum);
+              gotoPage(getpageNum);
+            }}
+            style={{ width: "40px" }}
+          />
+        </span>
       </div>
     </DndProvider>
   );
@@ -271,7 +274,7 @@ const Row = ({ row, index, moveRow, open, openRowId }) => {
           }  
         }}
       >
-        <td ref={dragRef}>move</td>
+        <td ref={dragRef} className={classes.move}>move</td>
         {row.cells.map((cell) => {
           return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
         })}

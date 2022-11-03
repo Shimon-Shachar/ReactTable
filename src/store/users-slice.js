@@ -4,6 +4,7 @@ const initialState = {
   helperUserIndex: undefined,
   updateUser: {},
   dbAccountInfo: [],
+  currentPage : 1,
   users: [
     {
       firstName: "",
@@ -35,6 +36,9 @@ const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload
+    },
     setDbUsers(state, action) {
       state.users = [...action.payload]
     },
