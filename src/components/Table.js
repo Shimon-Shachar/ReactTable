@@ -11,14 +11,10 @@ import ErrorModal from "./UI/ErrorModal";
 
 
 const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,error,empty,  onClose, isAddUser, addAndUpdate}) => {
-  const [firstDisabled, setFirstDisabled] = useState(true);
   const [prevDisabled, setPrevDisabled] = useState(true);
   const [nextDisabled, setNextDisabled] = useState(false);
-  const [lastDisabled, setLastDisabled] = useState(false);
-
-  const currentDBPage = useSelector((state) => state.users.currentPage);
-  const dbPageCount = useSelector((state) => state.users.pageCount);
-
+   
+  
   const data1 = useSelector((state) => state.users.users);
   const data = useMemo(()=> data1, [data1]);
   useEffect(()=> {
@@ -28,10 +24,11 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
   
   const [records, setRecords] = useState(data);
   
-  
   const getRowId = useCallback((row) => {
     return row.userId;
   }, []);
+  
+  
 
   const DefaultColumnFilter = ({
     column: { filterValue, preFilteredRows, setFilter },
@@ -58,7 +55,6 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
     canPreviousPage,
     canNextPage,
     pageOptions,
-    pageCount,
     gotoPage,
     nextPage,
     previousPage,
@@ -70,7 +66,7 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
       columns,
       defaultColumn,
       initialState: { pageIndex: 0 },
-      getRowId,
+      getRowId
     },
     useFilters,
     useSortBy,
@@ -88,71 +84,68 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
       })
     );
   };
-  const first = () => {
-    getPage(1);
-    gotoPage(1);
-    console.log("first", pageIndex);
-  };
   
-  const prev = () => {
-    console.clear();
-    console.log("next ,pageIndex", pageIndex);
-    console.log("next, pageCount" , pageCount);
-    console.log("curentDBPage", currentDBPage);
-    console.log("dbPageCOunt", dbPageCount);
+  const currentDB = useSelector((state) => state.users.currentPage);
+  const countDB = useSelector((state) => state.users.pageCount);
+  
+  const pageCount= pageOptions.length;
+  let currentPage = pageIndex + 1;
+  
+  
+  const prev = (first=false) => {
     
-    const prevPage = pageIndex - 1;
-    if (prevPage === 0 && currentDBPage === 1) {
-      console.log("prevPage === 0 && currentDBPage === 1");
-      setFirstDisabled(true);
+    console.log("prev : pageIndex is : ", pageIndex , "will be : " , pageIndex - 1);
+    setNextDisabled(false)
+    if (first) {
       setPrevDisabled(true);
-      gotoPage(prevPage);
-    } else {
-      if (!canPreviousPage) {
-        console.log("!canPreviousPage");
-        getPage(currentDBPage - 1)
-        gotoPage(0);
-      } else {  
-        console.log("prevPage !== 0");
-        gotoPage(prevPage);
-        setLastDisabled(false);
-        setNextDisabled(false);
+      getPage(1);
+      return;
+    }
+    if (currentDB === 1) {
+      if (currentPage === 2) {
+        setPrevDisabled(true);
+        previousPage();
+        
+        return;
       }
     }
+    if (currentPage === 1) {
+      if (currentDB ===2) {setPrevDisabled(true)}
+      console.log("page index = 0 : ", pageIndex);
+      getPage(currentDB - 1);
+      return;
+    } 
+    previousPage();
   }
-  const next = () => {
-    
-    const nextPage = pageIndex + 1;
-    setFirstDisabled(false);
+
+  const next = (last=false) => {
     setPrevDisabled(false);
+    if (last){
+      getPage(countDB);
+      return;
+    }
 
     
-    if (nextPage +1 === pageCount && currentDBPage === dbPageCount) {
-      gotoPage(nextPage);
+    if (currentPage === pageCount - 1 && currentDB === countDB) {
+      console.log("2ndlast: currentPage :", currentPage);
+      
       setNextDisabled(true);
-      setLastDisabled(true);
-    } else {
-      if (pageIndex +  1=== pageCount) {
-        getPage(currentDBPage + 1);
-        gotoPage(0);
-      } else {
-        gotoPage(nextPage);
-      }
+      nextPage();
+      return;
     }
+    if (currentPage === pageCount) {
+      currentPage = 1;
+      getPage(currentDB + 1);
+      return;
+    }
+    currentPage += 1;
+    console.log("1currentPage :", currentPage);
+    nextPage();
   }
-  const last = () => {
-    if (currentDBPage === dbPageCount) {
-      gotoPage(pageCount - 1);
-    } else {
-      getPage(dbPageCount);
-      gotoPage(pageCount - 1);
-    }
-    console.log("last", pageCount);
-    getPage(dbPageCount);
     
-    setLastDisabled(true);
-    
-  };
+  
+
+  
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -203,16 +196,28 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
         </tbody>
       </table>
       <div className="pagination">
-        <button onClick={() => {first(); setLastDisabled(false);setNextDisabled(false) }} disabled={firstDisabled}>
+        <button 
+          disabled={prevDisabled} 
+          onClick={() => prev(true)} 
+        >
           {"<<"}
         </button>{" "}
-        <button onClick={() => prev() } disabled={prevDisabled} >
+        <button 
+          disabled={prevDisabled} 
+          onClick={() => prev()}
+        >
           {"<"}
         </button>{" "}
-        <button onClick={() => next()} disabled={nextDisabled}>
+        <button 
+          disabled={nextDisabled}
+          onClick={() => next()}
+        >
           {">"}
         </button>{" "}
-        <button onClick={() => {last(); setPrevDisabled(false); setFirstDisabled(false)}} disabled={lastDisabled} >
+        <button 
+          disabled={nextDisabled}
+          onClick={() => next(true)}  
+        >
           {">>"}
         </button>{" "}
         <span>
@@ -235,11 +240,11 @@ const Table = ({ open,openRowId,columns, getPage ,toggleForm, openForm, formId,e
           ))}
         </select>
         <span>
-         Current page in DB: {currentDBPage} | Load DB page: {""}
+         Current page in DB: {currentDB} | Load DB page: {""}
           <input
             min={1}
             type="number"
-            defaultValue={currentDBPage + 1}
+            defaultValue={currentDB + 1}
             onChange={(e) => {
               const getpageNum = e.target.value ? Number(e.target.value) - 1 : 0;
               if (getpageNum < 1) { return}

@@ -3,11 +3,14 @@ body {
 }
 
 table {
-  
   border-collapse: collapse;
   width: 100%;
   background-color: #e0f47e;  
   border-radius: 4px;
+  display: table; 
+  table-layout: fixed;
+  border-spacing: 2px;
+  border-color: inherit;
 }
 
 /* button {
@@ -21,15 +24,20 @@ table {
   cursor: pointer;
   background-color: #b1efe7;
 } */
+
 tr {
   position : relative;
+  display: table-row;
+  min-width: 40px;
 }
 th,
 td {
+  word-wrap: normal;
   text-align: left;
   padding: 8px;
   text-align: center;
   border: 1px solid rgb(244, 242, 242);
+  overflow: hidden;
 }
 
 tr:hover {

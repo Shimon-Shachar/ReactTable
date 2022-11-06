@@ -1,7 +1,7 @@
 import Table from "./components/Table";
 import Layout from "./components/Layout/Layout";
 import AddUpdate from "./components/AddUpdate";
-import React, { Fragment, useEffect, useState, useMemo } from "react";
+import React, { Fragment, useEffect, useState, useMemo, useRef} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserAccounInfo, getUsers } from "./services/adminHttp";
 import { usersActions } from "./store/users-slice";
@@ -10,7 +10,9 @@ import { FcExpand, FcDeleteRow } from "react-icons/fc";
 import classes from "./components/Table.module.css";
 
 const App = () => {
+  
   console.log("APP");
+  let _currentDB = useRef(1);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -30,6 +32,7 @@ const App = () => {
   const dispatch = useDispatch();
   
   const fetchData = async (page=currentDBPage)=> {
+    
     try {
     const res = await getUsers(page)
     const data = await res.list;
@@ -58,8 +61,10 @@ const App = () => {
     setLoading(true)
     
     setTimeout(()=> {
-      
-      fetchData(currentDBPage);
+      if (currentDBPage === 0) {
+        _currentDB = 1;
+      } else { _currentDB = currentDBPage }
+      fetchData(currentDBPage)
     
       setLoading(false)
     }, 500)
@@ -86,10 +91,11 @@ const App = () => {
     () => [
       {
         Header: "Expand",
+        style: { width: "10px" },
         Cell: (pros) => {
           return (
-            <span
-              type="button"
+            <span className={classes.expand}
+              type="button" 
               onClick={() => {
                 toggleRowOpen(pros.row.index, pros.row.id)
                 console.log("Expand clickFunc : row.id",pros.row);
@@ -240,7 +246,7 @@ const App = () => {
     console.log("ONCLICK open state", open);
     dispatch(usersActions.setUserAccountInfo(index));
   };
-  const getPage = (pageNum) => {
+  const getPage = (pageNum=1) => {
     console.log("GET PAGE", pageNum);
       fetchData(pageNum);
   };
