@@ -1,0 +1,48 @@
+import { useState } from 'react'
+import './App.css'
+
+const arr = [
+  'email t','firstname t','lastname t', "phonenumber s"
+]
+function App() {
+  const [value, setValue] = useState({})
+  const cb =(id,val) => {
+    setValue(prev=>{
+      return {
+      ...prev,
+      [id]:val
+    }})
+  }
+  const onSubmitCB = (e) => {
+    e.preventDefault()
+    console.log('Submit', value)
+  }
+  console.log("callback",value) 
+  return (
+    <div>{createForm(arr, cb, onSubmitCB)}</div>
+  )
+}
+export default App;
+
+function parseInput(input){
+  return  input.split(" ")
+}
+// function parseType(type){
+//   if (type === "t") return "text" 
+// }
+
+function createForm(x, y, z) {
+  return <form onSubmit={(e)=>z(e)}>
+    {x.map((input, idx)=>
+      { const [name, inputType]= parseInput(input)
+        const type = inputType === "t" ? "text" : "number"
+        return <input 
+          id={input+idx} 
+          type={type} 
+          placeholder={name}
+          onChange={(e) => y(name, e.target.value)}/>
+      })
+    }
+  <button type='submit'>Submit</button>
+  </form>
+}
